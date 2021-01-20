@@ -1,0 +1,218 @@
+----------------HospitalEntity----------------
+
+public class HospitalEntity
+    {
+        public int counter;
+        public int id;
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+
+--------------Doctor----------------
+
+public class Doctor: HospitalEntity
+    {
+        public DateTime EndTime { get; set; }
+        public bool IsAvailable { get; set; }
+        public DateTime StartTime { get; set; }
+    }
+
+
+--------------Patient----------------
+
+public class Patient: HospitalEntity
+    {
+        public Doctor AllocatedDoctor { get; set; }
+        public DateTime FirstVaccinationDate { get; set; }
+        public bool IsFirstVaccinationCompleted { get; set; }
+        public bool IsOnWaitingList { get; set; }
+        public bool IsSecondVaccinationCompleted { get; set; }
+
+        public DateTime SecondVaccinationDate { get; set; }
+    }
+
+
+--------------Helper----------------
+
+public class Helper
+    {
+        public List<Doctor> DoctorList = new List<Doctor>() { new Doctor() { Id = 1, Name = "Anand" } };
+        public List<Patient> PatientList = new List<Patient>();
+
+        public Helper()
+        {
+
+        }
+    }
+
+
+
+--------------DoctorHelper----------------
+
+public class DoctorHelper: Helper
+    {
+        public DoctorHelper()
+        {   }
+        public List<Doctor> GetAvailableDoctors()
+        {
+            
+            foreach (var doc in DoctorList)
+            {
+                if (doc.IsAvailable)
+                {
+                    Console.WriteLine(doc.Name);
+                    
+
+                }
+                else
+                {
+                    DoctorList.Remove(doc);
+                    
+                }
+                    
+            }
+            return DoctorList;
+        }
+
+
+    }
+
+
+
+--------------PatientHelper----------------
+
+public class PatientHelper: Helper
+    {
+
+        
+        public void CheckIfVaccinationCompleted( string patientName)
+        {
+            
+            for (int i = 0; i < PatientList.Count; i++)
+            {
+                if (PatientList[i].Name == patientName)
+                {
+                    Patient p = PatientList[i];
+                    if (p.IsFirstVaccinationCompleted && p.IsSecondVaccinationCompleted)
+                    {
+                        Console.WriteLine("You have completed your vaccination.Thank you!");
+                        
+                    }
+                    else
+                    {
+                        Console.WriteLine("Your vaccinations are pending.Please contact your allocated doctor{0}",p.AllocatedDoctor);
+                        
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("You are not yet registered for vacccination.Please register before proceeding");
+                    
+                }
+            }
+        }
+        public List<Patient> GetPatientList()
+        {
+            return PatientList;
+        }
+        
+        public void RegisterAppointmentForVaccination(string patientName)
+        {
+            
+            for (int i = 0; i < PatientList.Count; i++)
+            {
+                if (PatientList[i].Name == patientName)
+                {
+                    Console.WriteLine("Dear {0}, you are already registered for vaccination with Dr.{1}", PatientList[i].Name,PatientList[i].AllocatedDoctor);
+                    return;
+                }
+                else
+                {
+                    PatientList.Add(new Patient() { Id = 1, Name = patientName });
+                    int c = PatientList.Count;
+
+                    if (DoctorList.Count > 0)
+                    {
+                        PatientList[c-1].AllocatedDoctor = DoctorList[0];
+                        //var PatientList = new List<Patient>(){ new Patient() { Id = 1, Name = patientName }};
+                        DoctorList.RemoveAt(0);
+                    }
+                    else
+                    {
+                        
+                        PatientList[c - 1].IsOnWaitingList = true;
+
+                    }
+                }
+            }
+        }
+        public void AllocatingDoctor()
+        {
+            for (int i = 0; i < PatientList.Count - 1; i++)
+            {
+                if (PatientList[i].IsOnWaitingList)
+                {
+                    if (DoctorList.Count > 0)
+                    {
+                        Patient p = PatientList[i];
+                        p.AllocatedDoctor = DoctorList[0];
+                        p.IsOnWaitingList = false;
+                        DoctorList.RemoveAt(0);
+                    }
+                    else
+                    {
+                        Console.WriteLine("There are no available doctors");
+                        return;
+                    }
+                }
+                
+            }
+        }
+    }
+
+
+----------------PatientHelperTests------------------
+
+public class PatientHelperTests
+    {
+        [TestMethod()]
+        public void CheckIfVaccinationCompletedTest()
+        {
+            PatientHelper p = new PatientHelper();
+            
+            string expected = "Your vaccinations are pending.Please contact your allocated doctor";
+            Assert.AreSame(Console.WriteLine(p.CheckIfVaccinationCompleted("Satvik")), expected);
+        }
+    }
+
+
+---------------------Program--------------------------
+
+public class Program
+    {
+        static void Main(string[] args)
+        {
+            HospitalEntity h = new HospitalEntity();
+            Doctor d = new Doctor();
+            Patient p = new Patient();
+            Helper he = new Helper();
+            DoctorHelper dh = new DoctorHelper();
+            PatientHelper ph = new PatientHelper();
+            Console.WriteLine(he.DoctorList[0].Name);
+            ph.RegisterAppointmentForVaccination("satvik");
+            Console.WriteLine(he.PatientList);
+            try
+            {
+                Console.WriteLine(he.PatientList[1].Name);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            
+        }
+
+    }
+
