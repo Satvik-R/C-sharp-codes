@@ -4,8 +4,10 @@ using System.Text;
 
 namespace second
 {
-    public class Patient: HospitalEntity
+    public class Patient
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
         public Doctor AllocatedDoctor { get; set; }
         public DateTime FirstVaccinationDate { get; set; }
         public bool IsFirstVaccinationCompleted { get; set; }
@@ -13,5 +15,7 @@ namespace second
         public bool IsSecondVaccinationCompleted { get; set; }
 
         public DateTime SecondVaccinationDate { get; set; }
+
+        
     }
 }

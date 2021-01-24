@@ -7,33 +7,50 @@ namespace second
 {
     public class PatientHelper: Helper
     {
+        public PatientHelper()
+        {
+            if (DoctorList.Count > 0)
+                AllocatingDoctor();
+        }
 
         
         public void CheckIfVaccinationCompleted( string patientName)
         {
             
-            for (int i = 0; i < PatientList.Count; i++)
-            {
-                if (PatientList[i].Name == patientName)
+            var p = PatientList.Where(e => (e.Name == patientName)).FirstOrDefault();
+
+            //for (int i = 0; i < PatientList.Count; i++)
+            //{
+            //    if (PatientList[i].Name == patientName)
+            //    {
+            if (p!=null)
+            { 
+                
+                    
+                if (p.IsFirstVaccinationCompleted && p.IsSecondVaccinationCompleted)
                 {
-                    Patient p = PatientList[i];
-                    if (p.IsFirstVaccinationCompleted && p.IsSecondVaccinationCompleted)
-                    {
-                        Console.WriteLine("You have completed your vaccination.Thank you!");
+                    Console.WriteLine("You have completed your vaccination.Thank you!");
                         
-                    }
-                    else
-                    {
-                        Console.WriteLine("Your vaccinations are pending.Please contact your allocated doctor{0}",p.AllocatedDoctor);
-                        
-                    }
                 }
                 else
                 {
-                    Console.WriteLine("You are not yet registered for vacccination.Please register before proceeding");
-                    
+                    if (p.AllocatedDoctor == null)
+                    {
+                        Console.WriteLine("{0}: Your vaccinations are pending.Please contact your allocated doctor and you will be allocated a doctor shortly", p.Name);
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0}: Your vaccinations are pending.Please contact your allocated doctor {1}", p.Name, p.AllocatedDoctor.Name);
+                    }
                 }
             }
+            else
+            {
+                Console.WriteLine("You are not yet registered for vacccination.Please register before proceeding");
+                    
+            }
+            
         }
         public List<Patient> GetPatientList()
         {
@@ -42,55 +59,65 @@ namespace second
         
         public void RegisterAppointmentForVaccination(string patientName)
         {
-            
-            for (int i = 0; i < PatientList.Count; i++)
+            var p = PatientList.Where(e => e.Name.Equals(patientName)).Select(e=>new { e.Name, e.AllocatedDoctor }).FirstOrDefault();
+           // Console.WriteLine(p.Equals);
+
+            //for (int i = 0; i < PatientList.Count; i++)
+            //{
+            //    if (PatientList[i].Name == patientName)
+            if(p!=null)
             {
-                if (PatientList[i].Name == patientName)
+                Console.WriteLine("Dear {0}, you are already registered for vaccination with Dr.{1}",p.Name, p.AllocatedDoctor.Name);
+                
+            }
+            
+            else
+            {
+                PatientList.Add(new Patient() { Id = 1, Name = patientName });
+                int c = PatientList.Count;
+
+                if (DoctorList.Count > 0)
                 {
-                    Console.WriteLine("Dear {0}, you are already registered for vaccination with Dr.{1}", PatientList[i].Name,PatientList[i].AllocatedDoctor);
-                    return;
+                    PatientList[c - 1].AllocatedDoctor = DoctorList[0];
+                    //var PatientList = new List<Patient>(){ new Patient() { Id = 1, Name = patientName }};
+                    DoctorList.RemoveAt(0);
                 }
                 else
                 {
-                    PatientList.Add(new Patient() { Id = 1, Name = patientName });
-                    int c = PatientList.Count;
 
-                    if (DoctorList.Count > 0)
-                    {
-                        PatientList[c-1].AllocatedDoctor = DoctorList[0];
-                        //var PatientList = new List<Patient>(){ new Patient() { Id = 1, Name = patientName }};
-                        DoctorList.RemoveAt(0);
-                    }
-                    else
-                    {
-                        
-                        PatientList[c - 1].IsOnWaitingList = true;
+                    PatientList[c - 1].IsOnWaitingList = true;
 
-                    }
                 }
+
             }
         }
         public void AllocatingDoctor()
         {
-            for (int i = 0; i < PatientList.Count - 1; i++)
-            {
-                if (PatientList[i].IsOnWaitingList)
+            
+            DeAllocatingDoctor();
+            //for (int i = 0; i < PatientList.Count - 1; i++)
+            //{
+            //    if (PatientList[i].IsOnWaitingList)
+            //    {
+            var WaitingListPatient = PatientList.Where(p => p.IsOnWaitingList == true);
+            foreach(Patient patient in WaitingListPatient)
+            { 
+                if (DoctorList.Count > 0)
                 {
-                    if (DoctorList.Count > 0)
-                    {
-                        Patient p = PatientList[i];
-                        p.AllocatedDoctor = DoctorList[0];
-                        p.IsOnWaitingList = false;
-                        DoctorList.RemoveAt(0);
-                    }
-                    else
-                    {
-                        Console.WriteLine("There are no available doctors");
-                        return;
-                    }
+                    //Patient p = PatientList[i];
+                    patient.AllocatedDoctor = DoctorList[0];
+                    patient.IsOnWaitingList = false;
+                    DoctorList.RemoveAt(0);
                 }
+                else
+                {
+                     Console.WriteLine("There are no available doctors");
+                     return;
+                }
+                
                 
             }
         }
     }
 }
+
