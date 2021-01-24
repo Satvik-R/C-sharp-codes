@@ -21,11 +21,20 @@ namespace second
             DoctorHelper dh = new DoctorHelper();
             PatientHelper ph = new PatientHelper();
             Console.WriteLine(dh.DoctorList[0].Name);
-            ph.RegisterAppointmentForVaccination("satvik");
-            ph.RegisterAppointmentForVaccination("Prasoon");
-            ph.RegisterAppointmentForVaccination("Krishna");
-            ph.RegisterAppointmentForVaccination("satvik");
-            ph.RegisterAppointmentForVaccination("Kumar");
+            
+            Action<string> del = e => ph.RegisterAppointmentForVaccination(e);
+            del("satvik");
+            del("Prasoon");
+            del("Krishna");
+            del("satvik");
+            del("Kumar");
+
+
+
+            //ph.RegisterAppointmentForVaccination("Prasoon");
+            //ph.RegisterAppointmentForVaccination("Krishna");
+            //ph.RegisterAppointmentForVaccination("satvik");
+            //ph.RegisterAppointmentForVaccination("Kumar");
 
             dh.DoctorList.Add(new Doctor("Kiran", 4) { AsstDoctor = new AssistantDoctor("Kiransister", 4) });
             ph.AllocatingDoctor();
@@ -40,8 +49,8 @@ namespace second
                 Console.WriteLine("Doctor {0} has assistant doctor {1}",doctor.Name,doctor.AsstDoctor.Name);
             }
 
-            Action<string> del = e => ph.RegisterAppointmentForVaccination(e);
-            del("Kumar");
+            
+            
             //try
             //{
 
